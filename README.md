@@ -71,6 +71,53 @@ include "/usr/local/nano-2.9.8/share/nano/*.nanorc"
 
 Now `nano foo.c` highlights C, `nano foo.py` highlights Python, etc.
 
+### 256-color terminal support
+
+SCO 5.0.7's stock `xterm` terminfo entry has zero color capabilities at
+all (no `setaf`/`setab`, no `colors` count) — predates the 8/16/256
+colour conventions completely. The bundled `extras/xterm-256color-sco.src`
+is a 256-colour `xterm-256color` entry, derived from modern ncurses and
+adjusted to fit SCO's 16-bit terminfo number storage (the only required
+change was capping `pairs` from 65536 → 32767).
+
+Install once on the SCO box:
+
+```sh
+tic extras/xterm-256color-sco.src
+```
+
+Then in any login session connecting to SCO from a 256-colour-capable
+terminal emulator (PuTTY, modern xterm, iTerm2, gnome-terminal, …):
+
+```sh
+export TERM=xterm-256color
+```
+
+Verify:
+
+```sh
+$ tput colors
+256
+$ tput setaf 196 | od -c | head -1
+0000000  033   [   3   8   ;   5   ;   1   9   6   m
+```
+
+Then nano picks colours from its syntax files automatically — `c.nanorc`,
+`python.nanorc`, etc.
+
+**One SCO-specific limit worth knowing**: `libcurses` caps simultaneous
+foreground/background colour *pairs* at **64**, regardless of what
+terminfo says. That's plenty for nano (typical themes use 10–20 pairs)
+but a tight ceiling if you push vim hard. Probed empirically:
+
+```c
+start_color();
+COLORS;       // → 256  ✅
+COLOR_PAIRS;  // → 64   ⚠ (libcurses internal cap, not a terminfo issue)
+init_pair(50, 196, 0);   // → 0  (success — 256-colour FG/BG values work)
+init_pair(100, 200, 16); // → -1 (fails: pair index >= 64)
+```
+
 ## Building from source
 
 You probably don't need to do this — the release tarball is what
@@ -106,6 +153,11 @@ configure/link flags.
 
 ```
 build.sh                     Native-build script (run on SCO)
+extras/
+  xterm-256color-sco.src     terminfo source: 256-colour xterm,
+                             adjusted for SCO's 16-bit terminfo
+                             number storage. `tic` it once on SCO
+                             and `export TERM=xterm-256color`.
 LICENSE                      MIT (covers build script only)
 README.md                    This file
 ```
