@@ -1,0 +1,15 @@
+# Local source workspace
+work/
+nano-2.9.8/
+nano-2.9.8.tar.gz
+
+# Build output
+install/
+
+# The prebuilt tarball ships via GitHub Releases, not via clone bloat
+prebuilt/*.tar.gz
+
+# Editor / OS
+*.swp
+*~
+.DS_Store
