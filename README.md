@@ -93,6 +93,23 @@ terminal emulator (PuTTY, modern xterm, iTerm2, gnome-terminal, …):
 export TERM=xterm-256color
 ```
 
+**PuTTY users — there are two extra toggles to flip on the client side.**
+Modern Linux/macOS terminals auto-detect 256-colour and need no setup,
+but PuTTY's defaults are conservative. In your saved session settings:
+
+- *Window → Colours* — tick **"Allow terminal to specify ANSI colours"**
+  and **"Allow terminal to use xterm 256-colour mode"**.
+- *Connection → Data* — set **"Terminal-type string"** to `xterm-256color`
+  (so SCO sees the right `$TERM` at login automatically; otherwise you
+  have to `export` it every time).
+- *(Optional — Window → Translation)* — set "Remote character set" to
+  `UTF-8` if you also use other apps. Won't help nano in this build
+  (`--disable-utf8`), but other shells/programs benefit.
+
+Save the session, then reconnect (PuTTY only sends the terminal-type
+string at session start, so a live session keeps its old setting until
+you reopen it).
+
 Verify:
 
 ```sh
